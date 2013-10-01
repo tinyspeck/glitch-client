@@ -1,11 +1,16 @@
-# Glitch Assets Repository #
+# Glitch Web Client #
+
+<a href="http://www.glitch.com">Glitch</a> was a browser-based MMO created by 
+<a href="http://tinyspeck.com">Tiny Speck</a>. This repository contains the
+source code for the game client.
 
 ## License ##
 
-All files are provided by Tiny Speck under the Creative Commons CC0 1.0 
-Universal License (CC0, 
-http://creativecommons.org/publicdomain/zero/1.0/legalcode) except where noted. This is a broadly permissive "No Rights Reserved" license — you may do what you 
-please with what we've provided. 
+All files are provided by Tiny Speck under the 
+<a href="http://creativecommons.org/publicdomain/zero/1.0/legalcode">Creative
+Commons CC0 1.0 Universal License</a> except where noted (see below). This is a 
+broadly permissive "No Rights Reserved" license — you may do what you please 
+with what we've provided. 
 
 All files are provided AS-IS. Tiny Speck cannot provide any support to help you 
 bring these assets into your own projects. Many of these files are not 
