@@ -36,15 +36,17 @@ knowledge!
 This repository includes several third-party projects that come with their
 own licensing terms. Our license does not cover their work. Please respect the
 licensing terms of those projects — their licenses are included in the headers
-of their source files. Those projects are:
+of their source files. Those projects, and their locations in this repository, are:
 
-* Draw by Martin Heidegger ```/at/leichtgewicht```
-* Tweener by Zeh Fernando, Nate Chatellier, Arthur Debert and Francis Turmel 
-```/caurina/transitions```
-* Image Encoding, JSON Serialization, and Base64 Encoding by Adobe 
-```/com/adobe```
-* Bit101 by Keith Peters ```/com/bit101```
-* A variety of libraries from GreenSock ```/com/greensock/```
-* EdgeFinder and ColorMatrix by Sakri Rosenstrom and Mario Klingemann 
-```com/quasimondo```
-* Upload BitmapData Snapshot by Stephen Braitsch ```/com/quietless```
+* Draw by Martin Heidegger (`at/leichtgewicht`)
+* Tweener by Zeh Fernando, Nate Chatellier, Arthur Debert and Francis Turmel
+(`caurina/transitions`)
+* Image Encoding, JSON Serialization, and Base64 Encoding by Adobe (`com/adobe`)
+* Bit101 by Keith Peters (`com/bit101`)
+* A variety of libraries from GreenSock (`com/greensock`)
+* EdgeFinder and ColorMatrix by Sakri Rosenstrom and Mario Klingemann (`com/quasimondo`)
+* Upload BitmapData Snapshot by Stephen Braitsch (`com/quietless`)
+* Object Pool by Michael Baczynski (`de/polygonal`)
+* Stats by Mr.doob (`net/hires`)
+* GIF Encoding and Decoding by Thibault Imbert (`org/bytearray`)
+* SWF deconstruction by Paul Sivtsov (`org/igorcosta`)
