@@ -66,3 +66,11 @@ of their source files. Those projects, and their locations in this repository, a
 * Stats by Mr.doob (`net/hires`)
 * GIF Encoding and Decoding by Thibault Imbert (`org/bytearray`)
 * SWF deconstruction by Paul Sivtsov (`org/igorcosta`)
+* Ronda Seven font by Yusuke Kamiyamane (`TSEngineAssets/src/assets/fonts`)
+* Prisencolinensinainciusol by Adriano Celentano (`TSEngineAssets/src/assets/sounds`)
+
+
+Some files from the original repo have been removed due to their restrictive licensing:
+
+* Helvetica (`TSEngineAssets/src/assets/fonts`)
+* VAG Rounded (`TSEngineAssets/src/assets/fonts`)
