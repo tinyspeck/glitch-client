@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	width="100%"
+	tabChildren="false" tabEnabled="false"
+	creationComplete="creationCompleteHandler(event)">
+
+	<fx:Script>
+	<![CDATA[
+		import locodeco.models.ColorModel;
+		import locodeco.models.LayerModel;
+		
+		import mx.collections.ArrayList;
+		import mx.events.CollectionEvent;
+		import mx.events.FlexEvent;
+		
+		[Bindable] public var selectedLayerModel:LayerModel;
+		[Bindable] public var topGradientColor:ColorModel;
+		[Bindable] public var bottomGradientColor:ColorModel;
+		
+		[Bindable] private var gradientTabEnabled:Boolean;
+		
+		private const tintColorsArray:Array = [
+			'0x000000', '0xFF0000', '0xFF8800', '0xFFFF00', '0x88FF00',
+			'0x00FF00', '0x00FF88', '0x00FFFF',	'0x0088FF', '0x0000FF',
+			'0x8800FF', '0xFF00FF', '0xFFFFFF'
+		];
+		
+		private const topGradientColorsArray:Array = [
+			{label:"Forest Dusk",       color:"0xFFF894"},
+			{label:"Morning Blue",      color:"0xB5F8FF"},
+			{label:"Afternoon Blue",    color:"0xB5FDFF"},
+			{label:"Shimla Dusk 01",    color:"0x473F00"},
+			{label:"Shimla Dusk 02",    color:"0x48541E"},
+			{label:"Shimla Evening",    color:"0x253800"},
+			{label:"Palindrone Sunset", color:"0x97FCED"},
+			{label:"Arbito Clean Room", color:"0xFCFCFC"},
+			{label:"Sunrise Sky",       color:"0x0099CC"},
+		];
+		
+		private const bottomGradientColorsArray:Array = [
+			{label:"Forest Dusk",       color:"0xE04F00"},
+			{label:"Morning Blue",      color:"0xE8FCFC"},
+			{label:"Afternoon Blue",    color:"0xB5FAFF"},
+			{label:"Shimla Dusk 01",    color:"0x9EAD63"},
+			{label:"Shimla Dusk 02",    color:"0x9EAD63"},
+			{label:"Shimla Evening",    color:"0xB5AC00"},
+			{label:"Palindrone Sunset", color:"0xFFBE54"},
+			{label:"Arbito Clean Room", color:"0xFCFCFC"},
+			{label:"Sunrise Sky",       color:"0xFFEA96"},
+		];
+		
+		private var layerModels:ArrayList;
+
+		protected function creationCompleteHandler(event:FlexEvent):void {
+			layerModels = LocoDecoGlobals.instance.location.layerModels;
+			layerModels.addEventListener(CollectionEvent.COLLECTION_CHANGE, layerModelsChanged);
+		}
+		
+		private function layerModelsChanged(e:CollectionEvent):void {
+			gradientTabEnabled = ((layerModels.length > 1) && (!layerModels.getItemAt(layerModels.length-1).isMiddleground));
+		}
+	]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<mx:ArrayCollection id="tintColors" source="{tintColorsArray}"/>
+		<mx:ArrayCollection id="topGradientColors" source="{topGradientColorsArray}"/>
+		<mx:ArrayCollection id="bottomGradientColors" source="{bottomGradientColorsArray}"/>
+	</fx:Declarations>
+	
+	<s:Panel title="Filters"
+		width="100%"
+		dropShadowVisible="false"
+		skinClass="locodeco.skins.PanelSkin">
+		
+		<mx:TabNavigator selectedIndex="3"
+			width="100%"
+			focusEnabled="false"
+			resizeToContent="true"
+			paddingBottom="5">
+			
+			<s:NavigatorContent label="Layer"
+				width="100%" height="100%"
+				enabled="{selectedLayerModel}">
+				<s:layout>
+					<s:VerticalLayout gap="3" horizontalAlign="center"/>
+				</s:layout>
+				
+				<components:LabeledHSlider
+					label="Bl:"
+					toolTip="Blur"
+					enabled="{!selectedLayerModel.isMiddleground}"
+					value="@{selectedLayerModel.blur}"
+					width="100%"
+					liveDragging="true"
+					useHandCursor="true" buttonMode="true"
+					focusEnabled="false"
+					maximum="10" stepSize="1" dataTipPrecision="0"
+					skinClass="locodeco.skins.LabeledSliderSkin"/>
+				
+				<components:LabeledHSlider
+					label="S:"
+					toolTip="Saturation"
+					value="@{selectedLayerModel.saturation}"
+					width="100%"
+					liveDragging="true"
+					useHandCursor="true" buttonMode="true"
+					focusEnabled="false"
+					minimum="-100" maximum="100" stepSize="1" dataTipPrecision="0"
+					skinClass="locodeco.skins.LabeledSliderSkin"/>
+				
+				<components:LabeledHSlider
+					label="Br:"
+					toolTip="Brightness"
+					value="@{selectedLayerModel.brightness}"
+					width="100%"
+					liveDragging="true"
+					useHandCursor="true" buttonMode="true"
+					focusEnabled="false"
+					minimum="-100" maximum="100" stepSize="1" dataTipPrecision="0"
+					skinClass="locodeco.skins.LabeledSliderSkin"/>
+				
+				<components:LabeledHSlider
+					label="C:"
+					toolTip="Contrast"
+					value="@{selectedLayerModel.contrast}"
+					width="100%"
+					liveDragging="true"
+					useHandCursor="true" buttonMode="true"
+					focusEnabled="false"
+					minimum="-100" maximum="100" stepSize="1" dataTipPrecision="0"
+					skinClass="locodeco.skins.LabeledSliderSkin"/>
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="Tint"
+				width="100%" height="100%"
+				enabled="{selectedLayerModel}">
+
+				<mx:Grid
+					width="100%" height="100%"
+					borderVisible="false">
+					<mx:GridRow width="100%">
+						<mx:GridItem/>
+						<mx:GridItem>
+							<components:LabeledHSlider
+								label="T:"
+								toolTip="Tint"
+								value="@{selectedLayerModel.tintAmount}"
+								width="100%"
+								liveDragging="true"
+								useHandCursor="true" buttonMode="true"
+								focusEnabled="false"
+								maximum="100" stepSize="1" dataTipPrecision="0"
+								skinClass="locodeco.skins.LabeledSliderSkin"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow width="100%">
+						<mx:GridItem colSpan="2">
+							<mx:HRule width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow width="100%">
+						<mx:GridItem verticalAlign="middle">
+							<mx:ColorPicker focusEnabled="false"
+								dataProvider="{tintColors}"
+								useHandCursor="true" buttonMode="true"
+								selectedColor="@{selectedLayerModel.tintColor.color}"/>
+						</mx:GridItem>
+						
+						<mx:GridItem width="100%">
+							<components:HSBSelector tabChildren="false"
+								selectedColorModel="@{selectedLayerModel.tintColor}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="Gradient"
+				width="100%" height="100%" enabled="{gradientTabEnabled}">
+				<mx:Grid
+					width="100%" height="100%"
+					borderVisible="false"
+					verticalGap="2">
+					
+					<mx:GridRow width="100%" toolTip="Top Sky Gradient">
+						<mx:GridItem verticalAlign="middle">
+							<mx:ColorPicker focusEnabled="false"
+								dataProvider="{topGradientColors}"
+								useHandCursor="true" buttonMode="true"
+								selectedColor="@{topGradientColor.color}"/>
+						</mx:GridItem>
+						
+						<mx:GridItem width="100%">
+							<components:HSBSelector tabChildren="false"
+								selectedColorModel="@{topGradientColor}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow width="100%">
+						<mx:GridItem colSpan="2">
+							<mx:HRule width="100%"/>
+						</mx:GridItem>
+					</mx:GridRow>
+
+					<mx:GridRow width="100%" toolTip="Bottom Sky Gradient">
+						<mx:GridItem verticalAlign="middle">
+							<mx:ColorPicker
+								dataProvider="{bottomGradientColors}"
+								useHandCursor="true" buttonMode="true"
+								selectedColor="@{bottomGradientColor.color}"/>
+						</mx:GridItem>
+						
+						<mx:GridItem width="100%">
+							<components:HSBSelector tabChildren="false"
+								selectedColorModel="@{bottomGradientColor}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="[collapse]" width="100%" height="100%"/>
+		</mx:TabNavigator>
+	</s:Panel>
+</s:Group>

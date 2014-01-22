@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx" minWidth="955" minHeight="600" xmlns:flexui="flexunit.flexui.*" creationComplete="onCreationComplete()" xmlns:flexUnitUIRunner="http://www.adobe.com/2009/flexUnitUIRunner">
+	<fx:Script>
+	<![CDATA[
+		import test.ColorModelTest;
+		import test.DecoModelTest;
+		
+		import org.flexunit.listeners.UIListener;
+		import org.flexunit.runner.FlexUnitCore;
+		
+		private var core:FlexUnitCore;
+		
+		public function onCreationComplete():void
+		{
+			core = new FlexUnitCore();
+			core.addListener(new UIListener(uiListener));
+			core.run(test.ColorModelTest, test.DecoModelTest);
+		}
+	]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<flexUnitUIRunner:TestRunnerBase id="uiListener" 
+		width="100%" height="100%" />	
+
+</s:Application>

@@ -1,0 +1,85 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+#layerPresetGroup s|Button {
+	chromeColor: #8e2581;
+}
+
+#viewportPresetGroup s|Button {
+	chromeColor: #8e2581;
+}
+
+s|CheckBox {
+	symbol-color: #666666;
+}
+
+mx|ComboBox {
+	chromeColor: #8e2581;
+}
+
+mx|TabBar {
+	chromeColor: #8e2581;
+}
+
+mx|SwatchPanel {
+	chromeColor: #8e2581;
+}
+
+mx|TabNavigator {
+	font-size: 11;
+	tab-height: 18;
+	padding-top: 5;
+	padding-left: 5;
+	padding-right: 5;
+	border-visible: false;
+	background-alpha: 0.1;
+	selectedTabTextStyleName: "SelectedTab";
+}
+
+.SelectedTab {
+	color: white;
+	textRollOverColor: white;
+}
+
+mx|HRule {
+	stroke-color: #012D38;
+	stroke-width: 1;
+}
+
+s|List {
+	alternating-item-colors: #024252,#024252;
+	roll-over-color: #024252;
+	selection-color: #8e2581;
+	content-background-color: #024252;
+	content-background-alpha: 1;
+}
+
+s|Panel {
+	background-color: #024252;
+}
+
+s|Panel mx|TextInput {
+	color: #FFFFFF;
+	focused-text-selection-color: #222222;
+}
+
+s|Label {
+	color: #FFFFFF;
+}
+
+mx|ColorPicker {
+	swatchPanelStyleName: swatches;
+}
+
+.swatches {
+	swatchWidth:20;
+	swatchHeight:20;
+	textFieldWidth:120;
+	swatchGridBackgroundColor:#FFFFFF;
+	backgroundColor:#666666;
+	highlightColor:#222222;
+	swatchGridBorderSize:0;
+	swatchHighlightColor:#666666;
+	swatchHighlightSize:1;
+}

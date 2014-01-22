@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:locodeco="locodeco.*"
+	skinClass="LocoDecoSkin"
+	preloader="MonkeyPatchPreloader"
+	tabChildren="false" tabEnabled="false"
+	applicationComplete="appComplete(event)">
+	
+	<fx:Style source="GlobalStyles.css"/>
+	
+	<fx:Script>
+	<![CDATA[
+		import locodeco.LocoDecoGlobals;
+		import locodeco.models.LadderModel;
+		import locodeco.models.PlatformLineModel;
+		import locodeco.models.TargetModel;
+		import locodeco.models.WallModel;
+		
+		import mx.events.FlexEvent;
+		import mx.managers.ToolTipManager;
+		
+		[Bindable] private var globals:LocoDecoGlobals;
+
+		protected function appComplete(event:FlexEvent):void {
+			ToolTipManager.showDelay = 0;
+			// redispatch this so the client can hear it
+			this.systemManager.loaderInfo.sharedEvents.dispatchEvent(event);
+			globals = LocoDecoGlobals.instance;
+		}
+	]]>
+	</fx:Script>
+	
+	<s:VGroup gap="4"
+		width="{globals.sideBarWidth}"
+		height="{globals.sideBarHeight}">
+		<locodeco:ViewportPanel
+			width="100%" height="56"/>
+		
+		<locodeco:PropertiesPanel
+			width="100%" height="106"
+			decoModel="{globals.selectedDeco}"
+			wallModel="{globals.selectedDeco as WallModel}"
+			ladderModel="{globals.selectedDeco as LadderModel}"
+			targetModel="{globals.selectedDeco as TargetModel}"
+			platformLineModel="{globals.selectedDeco as PlatformLineModel}"/>
+		
+		<!-- height set to the avg number of layers for most streets (six) -->
+		<locodeco:LayerPanel
+			width="100%" height="152"
+			layerModels="{globals.location.layerModels}"/>
+		
+		<locodeco:DecoPanel
+			width="100%" height="77"
+			layerModels="{globals.selectedLayer}"/>
+		
+		<locodeco:GeoPanel
+			width="100%" height="77"
+			geoModels="{globals.location.geometryModels}"/>
+		
+		<locodeco:FilterPanel
+			width="100%"
+			selectedLayerModel="{globals.selectedLayer}"
+			topGradientColor="@{globals.location.topGradientColor}"
+			bottomGradientColor="@{globals.location.bottomGradientColor}"/>
+		
+		<locodeco:MiscPanel width="100%" />
+	</s:VGroup>
+</s:Application>

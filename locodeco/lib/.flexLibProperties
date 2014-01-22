@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="locodeco.models.ColorModel"/>
+    <classEntry path="locodeco.MiscPanel"/>
+    <classEntry path="locodeco.LayerPanel"/>
+    <classEntry path="locodeco.DecoPanel"/>
+    <classEntry path="locodeco.models.LayerModel"/>
+    <classEntry path="locodeco.util.TSIDGen"/>
+    <classEntry path="locodeco.components.EditableLabel"/>
+    <classEntry path="locodeco.components.LabeledHSlider"/>
+    <classEntry path="locodeco.components.LocoDecoList"/>
+    <classEntry path="locodeco.renderers.LayerItemRenderer"/>
+    <classEntry path="locodeco.skins.NoLabelCheckboxSkin"/>
+    <classEntry path="locodeco.skins.LabeledSliderSkin"/>
+    <classEntry path="locodeco.skins.ListSkin"/>
+    <classEntry path="locodeco.skins.PanelSkin"/>
+    <classEntry path="unused.ResettableArrayList"/>
+    <classEntry path="locodeco.components.LocoDecoScroller"/>
+    <classEntry path="locodeco.skins.MaintainAspectRatioSkin"/>
+    <classEntry path="locodeco.util.GrahamScan"/>
+    <classEntry path="locodeco.util.FramerateTracker"/>
+    <classEntry path="locodeco.models.DoorModel"/>
+    <classEntry path="locodeco.models.PlatformModel"/>
+    <classEntry path="locodeco.models.WallModel"/>
+    <classEntry path="locodeco.models.BoxModel"/>
+    <classEntry path="locodeco.models.LadderModel"/>
+    <classEntry path="locodeco.models.SignPostModel"/>
+    <classEntry path="locodeco.models.DecoModelTypes"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>

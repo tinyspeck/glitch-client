@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	width="100%" height="100%"
+	tabChildren="false" tabEnabled="false"
+	creationComplete="{addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, onModelChanged);}">
+
+	<fx:Script>
+	<![CDATA[
+		import locodeco.models.DecoModel;
+		import locodeco.models.DecoModelTypes;
+		import locodeco.models.LadderModel;
+		import locodeco.models.PlatformLineModel;
+		import locodeco.models.TargetModel;
+		import locodeco.models.WallModel;
+		
+		import mx.collections.ArrayCollection;
+		import mx.events.PropertyChangeEvent;
+		
+		[Bindable] public var decoModel:DecoModel;
+		[Bindable] public var wallModel:WallModel;
+		[Bindable] public var ladderModel:LadderModel;
+		[Bindable] public var targetModel:TargetModel;
+		[Bindable] public var platformLineModel:PlatformLineModel;
+		
+		[Bindable] private var deco_sign_css_options:ArrayCollection = new ArrayCollection([
+			{label: 'White',    data: 'default_deco_sign'},
+			{label: 'White-',   data: 'default_deco_sign_tiny'},
+			{label: 'White+',   data: 'default_deco_sign_med'},
+			{label: 'White++',  data: 'default_deco_sign_lg'},
+			{label: 'Tan',      data: 'deco_sign_vag_tan'},
+			{label: 'Tan+',     data: 'deco_sign_vag_med_tan'},
+			{label: 'Tan++',    data: 'deco_sign_vag_lg_tan'},
+			{label: 'Gray',     data: 'deco_sign_vag_gray'},
+			{label: 'Gray+',    data: 'deco_sign_vag_med_gray'},
+			{label: 'Gray++',   data: 'deco_sign_vag_lg_gray'},
+			{label: 'Mud',      data: 'deco_sign_vag_mud'},
+			{label: 'Mud+',     data: 'deco_sign_vag_med_mud'},
+			{label: 'Mud++',    data: 'deco_sign_vag_lg_mud'},
+			{label: 'Yellow',   data: 'deco_sign_vag_yellow'},
+			{label: 'Yellow+',  data: 'deco_sign_vag_med_yellow'},
+			{label: 'Yellow++', data: 'deco_sign_vag_lg_yellow'}
+		]);
+		
+		[Bindable] private var plat_perm_options:ArrayCollection = new ArrayCollection([
+			{label: "Floor", data: -1}, 
+			{label: "Roof",  data: 1},
+			{label: "Hard",  data: null},
+			{label: "Soft",  data: 0}
+		]);
+		
+		[Bindable] private var wall_perm_options:ArrayCollection = new ArrayCollection([
+			{label: "Hard left",  data: -1}, 
+			{label: "Hard right", data: 1},
+			{label: "Hard",       data: null},
+			{label: "Soft",       data: 0}
+		]);
+		
+		private function maybeConstrainHeight():void {
+			if (decoModel && constrainProportions.selected) {
+				decoModel.constrainHeight();
+			}
+		}
+		
+		private function maybeConstrainWidth():void {
+			if (decoModel && constrainProportions.selected) {
+				decoModel.constrainWidth();
+			}
+		}
+		
+		private function markDimensionsOfAllSelectedDecos():void {
+			for each (var dm:DecoModel in LocoDecoGlobals.instance.selectedDecos.concat()) {
+				dm.markCurrentDimensions();
+			}
+		}
+		
+		private function onModelChanged(event:PropertyChangeEvent):void {
+			var o:Object;
+			switch (event.property) {
+				// update the plat perm comboboxes when a deco gets selected
+				case 'decoModel': {
+					if (decoModel) {
+						for each (o in deco_sign_css_options) {
+							if (o.data == decoModel.sign_css_class) {
+								decoCSS.selectedItem = o;
+							}
+						}
+					}
+					break;
+				}
+				// update the plat perm comboboxes when a platform gets selected
+				case 'platformLineModel': {
+					if (platformLineModel) {
+						for each (o in plat_perm_options) {
+							if (o.data == platformLineModel.platform_pc_perm) {
+								platPCPerm.selectedItem = o;
+							}
+							if (o.data == platformLineModel.platform_item_perm) {
+								platItemPerm.selectedItem = o;
+							}
+						}
+						for each (o in LocoDecoGlobals.instance.invokingSets) {
+							if (o.data == platformLineModel.placement_invoking_set) {
+								platItemInvokingSet.selectedItem = o;
+							}
+						}
+						for each (o in LocoDecoGlobals.instance.userdecoSets) {
+							if (o.data == platformLineModel.placement_userdeco_set) {
+								platItemUserdecoSet.selectedItem = o;
+							}
+						}
+					}
+					break;
+				}
+				// update the wall perm comboboxes when a wall gets selected
+				case 'wallModel': {
+					if (wallModel) {
+						for each (o in wall_perm_options) {
+							if (o.data == wallModel.pc_perm) {
+								wallPCPerm.selectedItem = o;
+							}
+							if (o.data == wallModel.item_perm) {
+								wallItemPerm.selectedItem = o;
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+	]]>
+	</fx:Script>
+
+	<s:Panel title="Props"
+		width="100%" height="100%"
+		dropShadowVisible="false"
+		skinClass="locodeco.skins.PanelSkin">
+		
+		<s:VGroup gap="0" width="100%" height="100%"
+			paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"
+			verticalAlign="top">
+			
+			<s:HGroup
+				visible="{!decoModel}"
+				includeInLayout="{!decoModel}"
+				width="100%" height="100%"
+				verticalAlign="middle">
+				
+				<s:Label text="ground-y: {LocoDecoGlobals.instance.location.groundY}"/>
+				<s:Spinner
+					focusEnabled="false"
+					value="@{LocoDecoGlobals.instance.location.groundY}"
+					minimum="{LocoDecoGlobals.instance.location.groundYMin}"
+					maximum="{LocoDecoGlobals.instance.location.groundYMax}"/>
+				<s:CheckBox label="Ground-Y mode"
+					selected="@{LocoDecoGlobals.instance.groundYMode}"
+					toolTip="Set the ground-y by clicking in the viewport"
+					focusEnabled="false"/>
+			</s:HGroup>
+			
+			<!-- REGULAR DECOS -->
+			<s:HGroup
+				visible="{decoModel &amp;&amp; !platformLineModel}"
+				includeInLayout="{decoModel &amp;&amp; !platformLineModel}"
+				width="100%" height="100%"
+				verticalAlign="middle">
+				
+				<s:VGroup width="52">
+					<components:EditableLabel
+						value="@{decoModel.x}"
+						prefix="x: "
+						restrict="-0-9"
+						isNumeric="true"/>
+					
+					<components:EditableLabel
+						value="@{decoModel.y}"
+						prefix="y: "
+						restrict="-0-9"
+						isNumeric="true"/>
+	
+				</s:VGroup>
+				
+				<mx:Grid
+					horizontalScrollPolicy="off"
+					verticalScrollPolicy="off"
+					width="78"
+					horizontalGap="2"
+					visible="{!targetModel}"
+					includeInLayout="{!targetModel}">
+					<mx:GridRow>
+						<mx:GridItem verticalAlign="middle">
+							<s:CheckBox
+								id="constrainProportions"
+								enabled="{!wallModel}"
+								selected="true"
+								change="markDimensionsOfAllSelectedDecos()"
+								useHandCursor="true" buttonMode="true"
+								skinClass="locodeco.skins.MaintainAspectRatioSkin"
+								toolTip="Constrain Proportions"/>
+							
+						</mx:GridItem>
+						
+						<mx:GridItem>
+							<s:VGroup>
+								<components:EditableLabel id="wProp"
+									enabled="{!wallModel &amp;&amp; !ladderModel}"
+									width="50"
+									value="@{decoModel.w}"
+									change="maybeConstrainHeight()"
+									minValue="{DecoModel.MIN_DIMS}"
+									toolTip="{decoModel.percentWidth}% of {decoModel.originalWidth}px"
+									prefix="w: "
+									restrict="0-9"
+									isNumeric="true"
+									mouseWheel="maybeConstrainHeight()"/>
+	
+								<components:EditableLabel id="hProp"
+									width="50"
+									value="@{decoModel.h}"
+									change="maybeConstrainWidth()"
+									minValue="{DecoModel.MIN_DIMS}"
+									toolTip="{decoModel.percentHeight}% of {decoModel.originalHeight}px"
+									prefix="h: "
+									restrict="0-9"
+									isNumeric="true"
+									mouseWheel="maybeConstrainWidth()"/>
+								
+							</s:VGroup>
+						</mx:GridItem>
+						
+						<mx:GridItem>
+							<s:Group>
+								<mx:Button
+									y="{wProp.y}"
+									visible="{decoModel &amp;&amp; decoModel.w != decoModel.originalWidth}"
+									click="{decoModel.w = decoModel.originalWidth}"
+									toolTip="Reset Width"
+									skin="@Embed('../../assets/zero.png')"
+									useHandCursor="true" buttonMode="true" />
+								
+								<mx:Button
+									y="{hProp.y}"
+									visible="{decoModel &amp;&amp; decoModel.h != decoModel.originalHeight}"
+									click="{decoModel.h = decoModel.originalHeight}"
+									toolTip="Reset Height"
+									skin="@Embed('../../assets/zero.png')"
+									useHandCursor="true" buttonMode="true" />
+	
+							</s:Group>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				
+				<!-- WALL STUFF -->
+				<mx:Grid
+					visible="{wallModel}"
+					includeInLayout="{wallModel}"
+					horizontalGap="2"
+					verticalGap="3">
+					<mx:GridRow>
+						<mx:GridItem
+							verticalAlign="middle" horizontalAlign="right">
+							<s:Label text="PC:"/>
+						</mx:GridItem>
+						
+						<mx:GridItem verticalAlign="middle">
+							<mx:ComboBox id="wallPCPerm"
+								width="86"
+								focusEnabled="false"
+								change="{if (wallModel) wallModel.pc_perm = wallPCPerm.selectedItem.data}"
+								dataProvider="{wall_perm_options}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow>
+						<mx:GridItem
+							verticalAlign="middle" horizontalAlign="right">
+							<s:Label text="Item:"/>
+						</mx:GridItem>
+						
+						<mx:GridItem verticalAlign="middle">
+							<mx:ComboBox id="wallItemPerm"
+								width="86"
+								focusEnabled="false"
+								change="{if (wallModel) wallModel.item_perm = wallItemPerm.selectedItem.data}"
+								dataProvider="{wall_perm_options}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+				
+				<!-- TODO should use a capabilities system rather than type -->
+				<s:VGroup
+					visible="{!(wallModel || targetModel)}"
+					includeInLayout="{!(wallModel || targetModel)}">
+					<s:HGroup width="60">
+						<components:EditableLabel
+							value="@{decoModel.r}"
+							prefix="r: "
+							suffix="°"
+							width="44"
+							restrict="-0-9"
+							isNumeric="true"/>
+						
+						<mx:Button
+							visible="{decoModel.r != 0}"
+							click="{decoModel.r = 0}"
+							toolTip="Reset Rotation"
+							skin="@Embed('../../assets/zero.png')"
+							useHandCursor="true" buttonMode="true" />
+	
+					</s:HGroup>
+					
+					<s:HGroup>
+						<s:CheckBox
+							label="H Flip"
+							selected="@{decoModel.h_flip}"
+							useHandCursor="true" buttonMode="true"
+							toolTip="Horizontal Flip"/>
+						
+					</s:HGroup>
+				</s:VGroup>
+				
+				<s:VGroup
+					visible="{(decoModel.type == DecoModelTypes.DECO_TYPE)}"
+					includeInLayout="{(decoModel.type == DecoModelTypes.DECO_TYPE)}">
+					<components:EditableLabel
+						value="@{decoModel.sign_txt}"
+						toolTip="{decoModel.sign_txt}"
+						mustBeNonEmpty="false"
+						prefix="sign: "
+						maxViewableChars="7"
+						width="76"/>
+						
+					<mx:ComboBox id="decoCSS"
+						toolTip="{decoModel.sign_css_class}"
+						focusEnabled="false"
+						change="{if (decoModel) decoModel.sign_css_class = decoCSS.selectedItem.data}"
+						dataProvider="{deco_sign_css_options}"/>
+					
+				</s:VGroup>
+			</s:HGroup>
+			
+			<!-- PLATFORM STUFF -->
+			<s:HGroup
+				visible="{platformLineModel}"
+				includeInLayout="{platformLineModel}"
+				width="100%" height="100%"
+				verticalAlign="top">
+
+				<s:VGroup width="80">
+					<components:EditableLabel
+						value="@{platformLineModel.x1}"
+						prefix="x1: "
+						restrict="-0-9"
+						isNumeric="true"/>
+					
+					<components:EditableLabel
+						value="@{platformLineModel.y1}"
+						prefix="y1: "
+						restrict="-0-9"
+						isNumeric="true"/>
+					
+					<s:CheckBox
+						label="Placement"
+						selected="@{platformLineModel.is_for_placement}"
+						useHandCursor="true" buttonMode="true"
+						toolTip="Platform is for placement of items in placement invoking set"/>
+					
+					<s:HGroup>
+						<mx:ComboBox id="platItemInvokingSet"
+							toolTip="Placement invoking set"
+							enabled="{platformLineModel.is_for_placement}"
+							focusEnabled="false"
+							change="{if (platformLineModel) platformLineModel.placement_invoking_set = platItemInvokingSet.selectedItem.data}"
+							dataProvider="{LocoDecoGlobals.instance.invokingSets}"/>
+	
+						<mx:ComboBox id="platItemUserdecoSet"
+							toolTip="Placement userdeco set"
+							enabled="{platformLineModel.is_for_placement}"
+							focusEnabled="false"
+							change="{if (platformLineModel) platformLineModel.placement_userdeco_set = platItemUserdecoSet.selectedItem.data}"
+							dataProvider="{LocoDecoGlobals.instance.userdecoSets}"/>
+						
+					</s:HGroup>
+				</s:VGroup>
+				
+				<s:VGroup width="80">
+					<components:EditableLabel
+						value="@{platformLineModel.x2}"
+						prefix="x2: "
+						restrict="-0-9"
+						isNumeric="true"/>
+					
+					<components:EditableLabel
+						value="@{platformLineModel.y2}"
+						prefix="y2: "
+						restrict="-0-9"
+						isNumeric="true"/>
+
+					<s:HGroup>
+						<components:EditableLabel
+							id="platHeight"
+							width="166"
+							enabled="{platformLineModel.is_for_placement}"
+							value="@{platformLineModel.placement_plane_height}"
+							prefix="placement plane height: "
+							restrict="-0-9"
+							isNumeric="true"/>
+						
+						<mx:Button
+							enabled="{platformLineModel.is_for_placement}"
+							visible="{platformLineModel.placement_plane_height != 0}"
+							click="{platformLineModel.placement_plane_height = 0}"
+							toolTip="Reset Placement Plane Height"
+							skin="@Embed('../../assets/zero.png')"
+							useHandCursor="true" buttonMode="true" />
+						
+					</s:HGroup>
+				</s:VGroup>
+				
+				<mx:Grid
+					horizontalGap="2"
+					verticalGap="3">
+					<mx:GridRow>
+						<mx:GridItem verticalAlign="middle">
+							<s:Label text="PC:"/>
+						</mx:GridItem>
+						
+						<mx:GridItem verticalAlign="middle">
+							<mx:ComboBox id="platPCPerm"
+								focusEnabled="false"
+								change="{if (platformLineModel) platformLineModel.platform_pc_perm = platPCPerm.selectedItem.data}"
+								dataProvider="{plat_perm_options}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+					
+					<mx:GridRow>
+						<mx:GridItem verticalAlign="middle">
+							<s:Label text="Item:"/>
+						</mx:GridItem>
+						
+						<mx:GridItem verticalAlign="middle">
+							<mx:ComboBox id="platItemPerm"
+								focusEnabled="false"
+								change="{if (platformLineModel) platformLineModel.platform_item_perm = platItemPerm.selectedItem.data}"
+								dataProvider="{plat_perm_options}"/>
+						</mx:GridItem>
+					</mx:GridRow>
+				</mx:Grid>
+			</s:HGroup>
+			
+			<!-- REGULAR DECOS -->
+			<s:HGroup
+				visible="{decoModel &amp;&amp; !platformLineModel}"
+				includeInLayout="{decoModel &amp;&amp; !platformLineModel}"
+				width="100%" height="100%"
+				verticalAlign="middle">
+				
+				<s:CheckBox
+					label="Animated"
+					enabled="{decoModel.animatable}"
+					selected="@{decoModel.animated}"
+					useHandCursor="true" buttonMode="true"
+					toolTip="Animate this deco"/>
+				
+				<s:CheckBox
+					label="Standalone"
+					selected="@{decoModel.standalone}"
+					useHandCursor="true" buttonMode="true"
+					toolTip="Render deco as standalone (e.g. able to be turned on and off)"/>
+					
+			</s:HGroup>
+		</s:VGroup>
+	</s:Panel>
+</s:Group>

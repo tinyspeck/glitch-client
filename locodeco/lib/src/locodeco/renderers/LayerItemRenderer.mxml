@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer
+	xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	toolTip="{data.name} ({data.tsid}){data.isMiddleground ? ' [middleground]' : ''}"
+	useHandCursor="true" buttonMode="true">
+	
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="hovered"/>
+		<s:State name="selected"/>
+	</s:states>
+	
+	<fx:Script>
+	<![CDATA[
+		import locodeco.models.LayerModel;
+		
+		override protected function updateDisplayList(uWidth:Number, uHeight:Number):void
+		{
+			super.updateDisplayList(uWidth, uHeight);
+			
+			// highlight the middleground layer
+			// highlight invisible layers with a checkerboard
+			// when dragging, data and rect may be null
+			const lm:LayerModel = data as LayerModel;
+			if (rect && lm) {
+				const g:Graphics = rect.graphics;
+				g.clear();
+				
+				if (!lm.visible) {
+					const checkerFill:BitmapData = new BitmapData(2, 2, true, 0x00000000);
+					checkerFill.setPixel32(0, 0, 0xFFFFFFFF);
+					checkerFill.setPixel32(1, 1, 0xFFFFFFFF);
+					g.beginBitmapFill(checkerFill);
+					g.drawRect(0, 0, uWidth, uHeight);
+				}
+			}
+		}
+	]]>
+	</fx:Script>
+
+	<!-- highlight the middleground when not selected -->
+	<s:BorderContainer id="rect"
+		alpha="0.2"
+		visible="{data.isMiddleground || !data.visible}"
+		left="0" top="0" right="0" bottom="0"
+		includeInLayout="false" />
+	
+	<s:HGroup verticalAlign="middle"
+		paddingLeft="5" paddingRight="5" paddingTop="3" paddingBottom="3">
+
+		<s:CheckBox id="visibility"
+			toolTip="Layer Visibility"
+			focusEnabled="false"
+			skinClass="locodeco.skins.NoLabelCheckboxSkin"
+			selected="@{data.visible}"/>
+		
+		<components:EditableLabel
+			value="@{data.name}"
+			restrict="A-Za-z 0-9_"
+			paddingLeft="5" paddingRight="5"
+			color="{data.isMiddleground ? 0x40C100 : 0xFFFFFF}"
+			fontWeight="bold"
+			width="130"
+			alpha.normal="0.6"/>
+		
+		<components:EditableLabel
+			mouseWheelEnabled="{!data.isMiddleground}"
+			doubleClickEnabled="{!data.isMiddleground}"
+			value="@{data.displayWidth}"
+			toolTip="width ({data.width}px)"
+			suffix="{data.suffix}"
+			alpha.normal="0.4" alpha.selected="0.9"
+			textAlign="right"
+			isNumeric="true"
+			restrict="0-9."
+			width="50"
+			fontWeight="bold"
+			fontSize="11"/>
+		
+		<components:EditableLabel
+			mouseWheelEnabled="{!data.isMiddleground}"
+			doubleClickEnabled="{!data.isMiddleground}"
+			value="@{data.displayHeight}"
+			toolTip="height ({data.height}px)"
+			suffix="{data.suffix}"
+			alpha.normal="0.4" alpha.selected="0.9"
+			textAlign="right"
+			isNumeric="true"
+			restrict="0-9."
+			width="50"
+			fontWeight="bold"
+			fontSize="11"/>
+		
+	</s:HGroup>
+	
+</s:ItemRenderer>

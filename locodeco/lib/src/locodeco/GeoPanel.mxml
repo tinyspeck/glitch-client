@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	width="100%" height="100%"
+	tabChildren="false" tabEnabled="false"
+	creationComplete="creationComplete(event)">
+
+	<fx:Script>
+	<![CDATA[
+		import locodeco.models.DecoModel;
+		
+		import mx.collections.ArrayList;
+		import mx.events.FlexEvent;
+		import mx.events.PropertyChangeEvent;
+		
+		import spark.events.IndexChangeEvent;
+		
+		
+		[Bindable] public var geoModels:ArrayList;
+
+		protected function resetGeoModelState(event:IndexChangeEvent):void {
+			// don't allow selection of hidden DecoModels
+			if ((event.newIndex != -1) && !DecoModel(geoModels.getItemAt(event.newIndex)).visible) {
+				event.preventDefault();
+			}
+		}
+
+		protected function removeGeo(event:MouseEvent):void {
+			const dm:DecoModel = DecoModel(geoList.selectedItem);
+			geoModels.removeItemAt(geoModels.getItemIndex(dm));
+		}
+		
+		private function selectedGeoMaybeChanged(pce:PropertyChangeEvent):void {
+			if (pce.property == 'selectedDeco') {
+				geoList.selectedItem = pce.newValue;
+			}
+		}
+		
+		private function creationComplete(event:FlexEvent):void {
+			LocoDecoGlobals.instance.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, selectedGeoMaybeChanged);
+		}
+	]]>
+	</fx:Script>
+
+	<s:Panel title="Geo"
+		width="100%" height="100%"
+		dropShadowVisible="false"
+		skinClass="locodeco.skins.PanelSkin">
+		
+		<!-- HACK: the valueCommit handler runs after the selection has changed programmatically.
+		     It uses callLater; it RTEs without it. C'est la vie. -->
+		<components:LocoDecoList id="geoList"
+			dataProvider="{geoModels}"
+			change="{LocoDecoGlobals.instance.selectedDeco = geoList.selectedItem;}"
+			valueCommit="{callLater(geoList.scrollToSelectedIndex)}"
+			changing="resetGeoModelState(event)"
+			width="100%" height="100%"
+			focusEnabled="false"
+			borderVisible="false"
+			itemRenderer="locodeco.renderers.DecoItemRenderer"
+			skinClass="locodeco.skins.ListSkin"/>
+	</s:Panel>
+	
+	<s:VGroup x="4" bottom="5" tabChildren="false">
+		<mx:Button
+			click="removeGeo(event)"
+			toolTip="Remove Geometry"
+			enabled="{geoList.selectedItem}"
+			skin="@Embed('../../assets/remove.png')"
+			disabledSkin="@Embed('../../assets/remove_disabled.png')"
+			useHandCursor="true" buttonMode="true"/>
+   		
+	</s:VGroup>
+</s:Group>

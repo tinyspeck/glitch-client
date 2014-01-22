@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	width="100%" height="100%"
+	tabChildren="false" tabEnabled="false"
+	creationComplete="creationComplete(event)">
+
+	<fx:Script>
+	<![CDATA[
+		import locodeco.models.DecoModel;
+		import locodeco.models.LayerModel;
+		
+		import mx.events.FlexEvent;
+		import mx.events.PropertyChangeEvent;
+		
+		import spark.events.IndexChangeEvent;
+		
+		[Bindable] public var layerModels:LayerModel;
+
+		protected function resetDecoModelState(event:IndexChangeEvent):void {
+			// don't allow selection of hidden DecoModels
+			if ((event.newIndex != -1) && !DecoModel(decoList.dataProvider.getItemAt(event.newIndex)).visible) {
+				event.preventDefault();
+			}
+		}
+
+		protected function removeDeco(event:MouseEvent):void {
+			const dm:DecoModel = DecoModel(decoList.selectedItem);
+			layerModels.decos.removeItemAt(layerModels.decos.getItemIndex(dm));
+		}
+
+		private function selectedDecoMaybeChanged(pce:PropertyChangeEvent):void {
+			if (pce.property == 'selectedDeco') {
+				decoList.selectedItem = pce.newValue;
+			}
+		}
+
+		private function creationComplete(event:FlexEvent):void {
+			LocoDecoGlobals.instance.addEventListener(PropertyChangeEvent.PROPERTY_CHANGE, selectedDecoMaybeChanged);
+		}
+	]]>
+	</fx:Script>
+
+	<s:Panel title="Decos"
+		width="100%" height="100%"
+		dropShadowVisible="false"
+		skinClass="locodeco.skins.PanelSkin">
+		
+		<!-- HACK: the valueCommit handler runs after the selection has changed programmatically.
+		     It uses callLater; it RTEs without it. C'est la vie. -->
+		<components:LocoDecoList id="decoList"
+			dataProvider="{layerModels.decos}"
+			change="{LocoDecoGlobals.instance.selectedDeco = decoList.selectedItem;}"
+			valueCommit="{callLater(decoList.scrollToSelectedIndex)}"
+			changing="resetDecoModelState(event)"
+			width="100%" height="100%"
+			dragEnabled="true"
+			dropEnabled="true"
+			dragMoveEnabled="true"
+			focusEnabled="false"
+			borderVisible="false"
+			itemRenderer="locodeco.renderers.DecoItemRenderer"
+			skinClass="locodeco.skins.ListSkin"/>
+
+	</s:Panel>
+	
+	<s:VGroup x="4" bottom="5" tabChildren="false">
+		<mx:Button
+			click="removeDeco(event)"
+			toolTip="Remove Deco"
+			enabled="{decoList.selectedItem}"
+			skin="@Embed('../../assets/remove.png')"
+			disabledSkin="@Embed('../../assets/remove_disabled.png')"
+			useHandCursor="true" buttonMode="true"/>
+   		
+	</s:VGroup>
+</s:Group>

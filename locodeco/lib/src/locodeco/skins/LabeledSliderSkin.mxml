@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+    ADOBE SYSTEMS INCORPORATED
+    Copyright 2008 Adobe Systems Incorporated
+    All Rights Reserved.
+
+    NOTICE: Adobe permits you to use, modify, and distribute this file
+    in accordance with the terms of the license agreement accompanying it.
+-->
+
+<!--- The default skin class for the Spark HSlider component. The thumb and track skins are defined by the
+HSliderThumbSkin and HSliderTrackSkin classes, respectively.  
+
+       @see spark.components.HSlider
+       @see spark.skins.spark.HSliderThumbSkin
+       @see spark.skins.spark.HSliderTrackSkin
+                
+      @langversion 3.0
+      @playerversion Flash 10
+      @playerversion AIR 1.5
+      @productversion Flex 4
+-->
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+    xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	minHeight="11" alpha.disabled="0.5">
+
+    <fx:Metadata>
+    <![CDATA[ 
+        /** 
+         * @copy spark.skins.spark.ApplicationSkin#hostComponent
+         */
+        [HostComponent("spark.components.HSlider")]
+    ]]>
+    </fx:Metadata> 
+    
+    <fx:Script fb:purpose="styling">
+        /* Define the skin elements that should not be colorized. 
+           For slider, the skin itself is colorized but the individual parts are not. */
+        static private const exclusions:Array = ["track", "thumb"];
+
+        /**
+         * @private
+         */  
+        override public function get colorizeExclusions():Array {return exclusions;}
+        
+        /**
+         * @private
+         */
+        override protected function initializationComplete():void
+        {
+            useChromeColor = true;
+            super.initializationComplete();
+        }
+
+		/**
+         *  @private
+         */  
+        override protected function measure() : void
+        {
+            // Temporarily move the thumb to the left of the Slider so measurement
+            // doesn't factor in its x position. This allows resizing the
+            // HSlider to less than 100px in width. 
+            var thumbPos:Number = thumb.getLayoutBoundsX();
+            thumb.setLayoutBoundsPosition(0, thumb.getLayoutBoundsY());
+            super.measure();
+            thumb.setLayoutBoundsPosition(thumbPos, thumb.getLayoutBoundsY());
+        }
+    </fx:Script>
+	
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+    </s:states>
+    
+	<s:HGroup width="100%" verticalAlign="middle" gap="3">
+		<s:Label id="labelPart"
+			width="16"
+			alpha="0.9"
+			fontSize="11"
+			textAlign="right"/>
+		
+		<s:Group width="100%">
+		    <!--- The default skin class is HSliderTrackSkin. 
+		            @copy spark.components.supportClasses.TrackBase#track
+		            @see spark.skins.spark.HSliderTrackSkin -->
+		    <s:Button id="track" left="0" right="0" top="0" bottom="0" minWidth="33" width="100"
+		              skinClass="spark.skins.spark.HSliderTrackSkin" />
+		              
+		    <!--- The default skin class is HSliderThumbSkin.
+		            @copy spark.components.supportClasses.TrackBase#thumb 
+		            @see spark.skins.spark.HSliderThumbSkin -->
+		    <s:Button id="thumb" top="0" bottom="0" width="11" height="11" 
+		              skinClass="spark.skins.spark.HSliderThumbSkin" />
+		</s:Group>
+		
+		<mx:Button id="resetPart"
+			toolTip="Reset to Zero"
+            skin="@Embed('../../../assets/zero.png')"
+			useHandCursor="true" buttonMode="true" />
+		
+		<components:EditableLabel id="valueLabelPart"
+			width="28"
+			alpha="0.4"
+			fontSize="11"
+			textAlign="right"
+			isNumeric="true"
+			restrict="-0-9"/>
+		
+	</s:HGroup>
+</s:SparkSkin>

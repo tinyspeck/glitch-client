@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	width="100%" height="100%"
+	tabChildren="false" tabEnabled="false">
+
+	<fx:Script>
+	<![CDATA[
+		import locodeco.models.LayerModel;
+		import locodeco.util.TSIDGen;
+		
+		import mx.collections.IList;
+		
+		
+		[Bindable]
+		public var layerModels:IList;
+		
+		//TODO allow removal of sky layer?
+		protected function removeLayer(event:MouseEvent):void {
+			const lm:LayerModel = LayerModel(layerList.selectedItem);
+			layerModels.removeItemAt(layerModels.getItemIndex(lm));
+		}
+
+		protected function addLayer(event:MouseEvent):void {
+			const newLM:LayerModel = new LayerModel();
+			const tsid:String = TSIDGen.newTSID();
+			
+			var lm:LayerModel = LayerModel(layerList.selectedItem);
+			if (!lm) lm = LayerModel(layerModels.getItemAt(0));
+			if (lm) {
+				// insert above selected/top item with same properties
+				LocoDecoGlobals.instance.location.addLayer(tsid, layerModels.getItemIndex(lm), lm.width, lm.height);
+			} else {
+				// new layer with no other layer friends
+				LocoDecoGlobals.instance.location.addLayer(tsid, 0, NaN, NaN, 100, 100);
+			}
+		}
+	]]>
+	</fx:Script>
+
+	<s:Panel title="Layers"
+		width="100%" height="100%"
+		dropShadowVisible="false"
+		skinClass="locodeco.skins.PanelSkin">
+
+		<!-- HACK: the valueCommit handler runs after the selection has changed programmatically.
+		     It uses callLater; it RTEs without it. C'est la vie. -->
+		<components:LocoDecoList id="layerList"
+			dataProvider="{layerModels}"
+			selectedItem="@{LocoDecoGlobals.instance.selectedLayer}"
+			valueCommit="{callLater(layerList.scrollToSelectedIndex)}"
+			requireSelection="true"
+			width="100%" height="100%"
+			dragEnabled="true"
+			dropEnabled="true"
+			dragMoveEnabled="true"
+			focusEnabled="false"
+			borderVisible="false"
+			itemRenderer="locodeco.renderers.LayerItemRenderer"
+			skinClass="locodeco.skins.ListSkin"/>
+				
+	</s:Panel>
+	
+	<s:VGroup x="4" bottom="5" tabChildren="false">
+		<mx:Button
+			click="removeLayer(event)"
+			toolTip="Remove Layer"
+			enabled="{layerList.selectedItem &amp;&amp; !LayerModel(layerList.selectedItem).isMiddleground}"
+			skin="@Embed('../../assets/remove.png')"
+			disabledSkin="@Embed('../../assets/remove_disabled.png')"
+			useHandCursor="true" buttonMode="true"/>
+		<mx:Button
+			click="addLayer(event)"
+			toolTip="Add Layer"
+			skin="@Embed('../../assets/add.png')"
+			useHandCursor="true" buttonMode="true"/>
+		
+	</s:VGroup>
+</s:Group>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+    ADOBE SYSTEMS INCORPORATED
+    Copyright 2008 Adobe Systems Incorporated
+    All Rights Reserved.
+
+    NOTICE: Adobe permits you to use, modify, and distribute this file
+    in accordance with the terms of the license agreement accompanying it.
+
+-->
+
+<!--- The default skin class for the Spark CheckBox component.  
+
+      @see spark.components.CheckBox
+        
+      @langversion 3.0
+      @playerversion Flash 10
+      @playerversion AIR 1.5
+      @productversion Flex 4
+-->
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+             xmlns:fb="http://ns.adobe.com/flashbuilder/2009" alpha.disabledStates="0.5">
+
+    <fx:Metadata>
+    <![CDATA[ 
+        /** 
+         * @copy spark.skins.spark.ApplicationSkin#hostComponent
+         */
+        [HostComponent("spark.components.CheckBox")]
+    ]]>
+    </fx:Metadata> 
+    
+    <fx:Script fb:purpose="styling">
+        /* Define the skin elements that should not be colorized. 
+           For button, the graphics are colorized but the label is not. */
+        static private const exclusions:Array = [];
+
+       /** 
+        * @private 
+        */     
+        override public function get colorizeExclusions():Array {return exclusions;}
+        
+        /* Define the symbol fill items that should be colored by the "symbolColor" style. */
+        static private const symbols:Array = [];
+
+       /**
+        * @private 
+        */
+        override public function get symbolItems():Array {return symbols};
+        
+        /**
+         * @private
+         */
+        override protected function initializationComplete():void
+        {
+            useChromeColor = true;
+            super.initializationComplete();
+        }
+    </fx:Script>
+    
+    <fx:Script>
+        <![CDATA[
+            /** 
+             * @private 
+             */     
+            private static const focusExclusions:Array = [];
+
+            /**
+             * @private
+             */
+            override public function get focusSkinExclusions():Array { return focusExclusions;};
+        ]]>
+    </fx:Script>
+    
+    <s:states>
+        <s:State name="up" />
+        <s:State name="over" stateGroups="overStates" />
+        <s:State name="down" stateGroups="downStates" />
+        <s:State name="disabled" stateGroups="disabledStates" />
+        <s:State name="upAndSelected" stateGroups="selectedStates" />
+        <s:State name="overAndSelected" stateGroups="overStates, selectedStates" />
+        <s:State name="downAndSelected" stateGroups="downStates, selectedStates" />
+        <s:State name="disabledAndSelected" stateGroups="disabledStates, selectedStates" />
+    </s:states>
+    
+	<s:Group verticalCenter="0">
+		<s:BitmapImage
+			source="@Embed('../../../assets/link.png')"
+			source.down="@Embed('../../../assets/link_selected.png')"
+			source.upAndSelected="@Embed('../../../assets/link_selected.png')"
+			source.overAndSelected="@Embed('../../../assets/link_selected.png')"
+			source.downAndSelected="@Embed('../../../assets/link.png')"
+			source.disabledAndSelected="@Embed('../../../assets/link_selected_disabled.png')"
+			source.disabled="@Embed('../../../assets/link_disabled.png')"/>
+	</s:Group>
+
+</s:SparkSkin>

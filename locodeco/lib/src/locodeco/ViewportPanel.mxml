@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	width="100%" height="100%"
+	tabChildren="false" tabEnabled="false">
+	
+	<s:Panel title="View"
+		width="100%" height="100%"
+		dropShadowVisible="false"
+		skinClass="locodeco.skins.PanelSkin">
+		
+		<s:VGroup gap="0" width="100%" height="100%"
+			paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"
+			verticalAlign="top">
+			
+			<components:LabeledHSlider
+				label="Sc:"
+				toolTip="Viewport Scale ({LocoDecoGlobals.instance.viewportScale})"
+				liveDragging="true"
+				width="100%"
+				snapInterval="0.05" stepSize="0.05"
+				dataTipPrecision="2"
+				minimum="0.2" maximum="1"
+				resetValue="1"
+				value="@{LocoDecoGlobals.instance.viewportScale}"
+				skinClass="locodeco.skins.LabeledSliderSkin"/>
+			
+			<mx:HRule width="100%"/>
+			
+			<s:HGroup id="viewportPresetGroup" width="100%" paddingTop="5" paddingBottom="5">
+				<s:Button
+					label="650x450"
+					buttonMode="true"
+					useHandCursor="true"
+					click="{LocoDecoGlobals.instance.viewportWidth = 650; LocoDecoGlobals.instance.viewportHeight = 450}"/>
+				
+				<s:Button
+					label="900x600"
+					buttonMode="true"
+					useHandCursor="true"
+					click="{LocoDecoGlobals.instance.viewportWidth = 900; LocoDecoGlobals.instance.viewportHeight = 600}"/>
+				
+				<s:Button
+					label="Max"
+					buttonMode="true"
+					useHandCursor="true"
+					click="{LocoDecoGlobals.instance.viewportWidth = int.MAX_VALUE; LocoDecoGlobals.instance.viewportHeight = int.MAX_VALUE}"/>
+			</s:HGroup>
+			
+		</s:VGroup>
+	</s:Panel>
+</s:Group>

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	xmlns:components="locodeco.components.*"
+	width="100%"
+	tabChildren="false" tabEnabled="false"
+	creationComplete="creationCompleteHandler(event)">
+
+	<fx:Script>
+	<![CDATA[
+		import locodeco.models.LayerModel;
+		
+		import mx.collections.ArrayList;
+		import mx.events.CollectionEvent;
+		import mx.events.FlexEvent;
+		
+		private static const PRESETS:Object = {
+			order: ['Standard', 'Standard (Vertical Parallax)', 'Forest', 'Shimla Mirch'],
+			'Standard': {
+				order: ['foreground', 'middleplus', 'middleground', 'bg_1', 'bg_2', 'sky'],
+				foreground:   {w: 108.3, h: 102.5},
+				middleplus:   {w: 100,   h: 100},
+				middleground: {w: 6000,  h: 1000},
+				bg_1:         {w: 90,    h: 100},
+				bg_2:         {w: 78.3,  h: 100},
+				sky:          {w: 66.7,  h: 100}
+			},
+			'Standard (Vertical Parallax)': {
+				order: ['foreground', 'middleplus', 'middleground', 'bg_1', 'bg_2', 'sky'],
+				foreground:   {w: 108.3, h: 102.5},
+				middleplus:   {w: 100,   h: 100},
+				middleground: {w: 6000,  h: 1000},
+				bg_1:         {w: 90,    h: 98},
+				bg_2:         {w: 78.3,  h: 96},
+				sky:          {w: 66.7,  h: 93}
+			},
+			'Forest': {
+				order: ['foreground', 'middleplus', 'middleground', 'bg_1', 'sky'],
+				foreground:   {w: 108.3, h: 100},
+				middleplus:   {w: 100,   h: 100},
+				middleground: {w: 6000,  h: 1000},
+				bg_1:         {w: 90,    h: 100},
+				sky:          {w: 80,    h: 100}
+			},
+			'Shimla Mirch': {
+				order: ['foreground', 'middleplus', 'middleground', 'bg_1', 'bg_2', 'sky'],
+				foreground:   {w: 108.3, h: 100},
+				middleplus:   {w: 100,   h: 100},
+				middleground: {w: 4000,  h: 750},
+				bg_1:         {w: 95,    h: 100},
+				bg_2:         {w: 92.5,  h: 100},
+				sky:          {w: 90,    h: 100}
+			}
+		};
+		
+		private var globals:LocoDecoGlobals;
+		private var layerModels:ArrayList;
+		
+		private function creationCompleteHandler(event:FlexEvent):void {
+			globals = LocoDecoGlobals.instance;
+			layerModels = globals.location.layerModels;
+		}
+		
+		protected function addLayerPresetButtons(event:FlexEvent):void {
+			for each (var name:String in PRESETS.order) {
+				var label:Label = new Label();
+				label.visible = false;
+				label.includeInLayout = false;
+				label.percentWidth = 100;
+				label.text = name + ' expects: ' + (PRESETS[name].order as Array).join(', ');
+				layerPresets.addElement(label);
+				
+				var btn:Button = new Button();
+				btn.buttonMode = true;
+				btn.useHandCursor = true;
+				btn.id = btn.name = name;
+				btn.label = name + ' (' + PRESETS[name].middleground.w + 'x' + PRESETS[name].middleground.h + ')';
+				btn.addEventListener(MouseEvent.CLICK, generateClosure(loadPreset, name));
+				layerPresets.addElement(btn);
+			}
+			LocoDecoGlobals.instance.location.layerModels.addEventListener(
+				CollectionEvent.COLLECTION_CHANGE, updateLayerPresetButtons);
+		}
+		
+		private function generateClosure(method:Function, ...args):Function {
+	         return function(...whatever):void { method.apply(null, args); };
+	    }
+
+		private function updateLayerPresetButtons(e:CollectionEvent = null):void {
+			var i:int;
+			var j:int;
+			var lbl:Label;
+			var btn:Button;
+			var elt:Object;
+
+			// reset everything
+			renameLayers.visible = false;
+			renameLayers.includeInLayout = false;
+			presetInfo.text = 'Add new layers to middleground:';
+			for (i=0; i<layerPresets.numElements; i++) {
+				elt = layerPresets.getElementAt(i);
+				if (!(elt is Button)) continue;
+				btn = Button(elt);
+				btn.enabled = true;
+				lbl = Label(layerPresets.getElementAt(i-1));
+				lbl.visible = false;
+				lbl.includeInLayout = false;
+			}
+			
+			if (layerModels.length == 1) return;
+			
+			if ((layerModels.length == 5) || (layerModels.length == 6)) {
+				if (LayerModel(layerModels.getItemAt(2)).tsid == 'middleground') {
+					renameLayers.visible = true;
+					renameLayers.includeInLayout = true
+				}
+			}
+			
+			presetInfo.text = 'Update existing layer dimensions:';
+			for (i=0; i<layerPresets.numElements; i++) {
+				elt = layerPresets.getElementAt(i);
+				if (!(elt is Button)) continue;
+				btn = Button(elt);
+				lbl = Label(layerPresets.getElementAt(i-1));
+				
+				// if the layer lengths don't even match, bail
+				var required:Array = PRESETS[btn.name].order;
+				if (required.length != layerModels.length) {
+					btn.enabled = false;
+					lbl.visible = true;
+					lbl.includeInLayout = true;
+					continue;
+				}
+				
+				// match up all the layers with the preset's layer requirement
+				for (j=0; j<required.length; j++) {
+					var layerName:String = required[int(j)];
+					var lm:LayerModel = LayerModel(layerModels.getItemAt(j));
+					if (lm[(layerName=='middleground') ? 'tsid' : 'name'] != layerName) {
+						btn.enabled = false;
+						lbl.visible = true;
+						lbl.includeInLayout = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		private function renameExistingLayers():void {
+			LayerModel(layerModels.getItemAt(0)).name = 'foreground';
+			LayerModel(layerModels.getItemAt(1)).name = 'middleplus';
+			LayerModel(layerModels.getItemAt(3)).name = 'bg_1';
+			if (layerModels.length == 6) LayerModel(layerModels.getItemAt(4)).name = 'bg_2';
+			LayerModel(layerModels.getItemAt(layerModels.length-1)).name = 'sky';
+		}
+		
+		private function loadPreset(name:String):void {
+			const preset:Object = PRESETS[name];
+			const mgW:int = preset.middleground.w;
+			const mgH:int = preset.middleground.h;
+			if (layerModels.length == 1) {
+				// add new layers
+				var i:int = 0;
+				for each (var layerName:String in preset.order) {
+					if (layerName == 'middleground') {
+						LayerModel(globals.location.layerModels.getItemAt(i)).width  = mgW;
+						LayerModel(globals.location.layerModels.getItemAt(i)).height = mgH;
+					} else {
+						globals.location.addLayer(layerName, i, preset[layerName].w*mgW/100, preset[layerName].h*mgH/100);
+					}
+					i++;
+				}
+			} else {
+				// update existing
+				for each (var lm:LayerModel in layerModels.source) {
+					if (lm.isMiddleground) {
+						lm.width  = mgW;
+						lm.height = mgH;
+					} else if (preset[lm.name]) {
+						lm.width  = preset[lm.name].w*mgW/100;
+						lm.height = preset[lm.name].h*mgH/100;
+					}
+				}
+			}
+		}
+	]]>
+	</fx:Script>
+	
+	<s:Panel title="Misc"
+		width="100%"
+		dropShadowVisible="false"
+		skinClass="locodeco.skins.PanelSkin">
+		
+		<mx:TabNavigator
+			width="100%"
+			focusEnabled="false"
+			resizeToContent="true"
+			paddingBottom="5">
+	
+			<s:NavigatorContent label="Overlays"
+				width="100%" height="100%">
+				<s:Scroller width="100%" height="100%">
+					<s:VGroup>
+						<s:CheckBox
+							label="Geometry"
+							toolTip="Platforms, walls, and (invisible) ladders"
+							focusEnabled="false"
+							selected="@{LocoDecoGlobals.instance.overlayPlatforms}"/>
+						
+						<s:CheckBox
+							label="PCs"
+							toolTip="PCs"
+							focusEnabled="false"
+							selected="@{LocoDecoGlobals.instance.overlayPCs}"/>
+						
+						<s:CheckBox
+							label="Itemstacks"
+							toolTip="Itemstacks"
+							focusEnabled="false"
+							selected="@{LocoDecoGlobals.instance.overlayItemstacks}"/>
+						
+						<s:CheckBox
+							enabled="false"
+							label="Proxy PC Jump Arc"
+							toolTip="Proxy PC Jump Arc"
+							focusEnabled="false"
+							selected="@{LocoDecoGlobals.instance.overlayJumpArc}"/>
+						
+						<s:CheckBox
+							enabled="false"
+							label="Proxy PC Interaction Region"
+							toolTip="Proxy PC Interaction Region"
+							focusEnabled="false"
+							selected="@{LocoDecoGlobals.instance.overlayInteractionRegion}"/>
+						
+						<s:CheckBox
+							enabled="false"
+							label="Ruler"
+							toolTip="Ruler"
+							focusEnabled="false"
+							selected="@{LocoDecoGlobals.instance.overlayRuler}"/>
+						
+					</s:VGroup>
+				</s:Scroller>
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="Layer Presets"
+				width="100%" height="100%"
+				show="updateLayerPresetButtons()">
+				
+				<s:VGroup id="layerPresetGroup" width="100%">
+					<s:Label id="presetInfo" width="100%"/>
+					<s:Button id="renameLayers"
+						label="Rename existing layers to match templates"
+						click="renameExistingLayers()"/>
+					<s:VGroup id="layerPresets" width="100%"
+						initialize="addLayerPresetButtons(event)" />
+				</s:VGroup>
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent label="Preferences"
+				width="100%" height="100%">
+
+				<s:VGroup>
+					<s:CheckBox
+						label="Only allow selection of geometry"
+						toolTip="Only allow selection of geometry"
+						focusEnabled="false"
+						selected="@{LocoDecoGlobals.instance.onlySelectGeos}"/>
+					
+					<s:CheckBox
+						label="Center viewport over selected deco"
+						toolTip="Center viewport when selecting a deco"
+						focusEnabled="false"
+						selected="@{LocoDecoGlobals.instance.centerVPOnSelection}"/>
+	
+					<s:CheckBox
+						label="Glow selectable decos when hovering"
+						toolTip="There's a fancy glow around decos that are selectable"
+						focusEnabled="false"
+						selected="@{LocoDecoGlobals.instance.overlayHoverGlow}"/>
+					
+					<s:CheckBox
+						label="Glow selected decos"
+						toolTip="There's a fancy glow around selected decos"
+						focusEnabled="false"
+						selected="@{LocoDecoGlobals.instance.overlaySelectionGlow}"/>
+					
+					<s:CheckBox
+						label="Show tool tips"
+						toolTip="Show tool tips"
+						focusEnabled="false"
+						selected="@{LocoDecoGlobals.instance.toolTips}"/>
+					
+				</s:VGroup>
+			</s:NavigatorContent>
+		</mx:TabNavigator>
+	</s:Panel>
+</s:Group>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+
+    ADOBE SYSTEMS INCORPORATED
+    Copyright 2008 Adobe Systems Incorporated
+    All Rights Reserved.
+
+    NOTICE: Adobe permits you to use, modify, and distribute this file
+    in accordance with the terms of the license agreement accompanying it.
+
+-->
+
+<!--- The default skin class for a Spark List component.  
+
+      @see spark.components.List
+        
+      @langversion 3.0
+      @playerversion Flash 10
+      @playerversion AIR 1.5
+      @productversion Flex 4
+-->
+<s:SparkSkin xmlns:fx="http://ns.adobe.com/mxml/2009"
+	xmlns:s="library://ns.adobe.com/flex/spark"
+	xmlns:fb="http://ns.adobe.com/flashbuilder/2009"
+	xmlns:components="locodeco.components.*"
+	minWidth="112" alpha.disabled="0.5" blendMode="normal"> 
+    
+    <fx:Metadata>
+    <![CDATA[ 
+        /** 
+         * @copy spark.skins.spark.ApplicationSkin#hostComponent
+         */
+        [HostComponent("spark.components.List")]
+    ]]>
+    </fx:Metadata> 
+    
+    <fx:Script fb:purpose="styling">
+        /* Define the skin elements that should not be colorized. 
+           For list, the skin itself is colorized but the individual parts are not. */
+        static private const exclusions:Array = ["scroller", "background"];
+
+        /**
+         * @private
+         */
+        override public function get colorizeExclusions():Array {return exclusions;}
+        
+        /* Define the content fill items that should be colored by the "contentBackgroundColor" style. */
+        static private const contentFill:Array = ["bgFill"];
+        
+        /**
+         * @private
+         */
+        override public function get contentItems():Array {return contentFill};
+        
+        /**
+         * @private
+         */
+        override protected function initializationComplete():void
+        {
+            useChromeColor = true;
+            super.initializationComplete();
+        }
+ 
+        /**
+         * @private
+         */
+        override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+        {
+            if (getStyle("borderVisible") == true)
+            {
+                border.visible = true;
+                background.left = background.top = background.right = background.bottom = 1;
+                scroller.minViewportInset = 1;
+            }
+            else
+            {
+                border.visible = false;
+                background.left = background.top = background.right = background.bottom = 0;
+                scroller.minViewportInset = 0;
+            }
+            
+            borderStroke.color = getStyle("borderColor");
+            borderStroke.alpha = getStyle("borderAlpha");
+            
+            super.updateDisplayList(unscaledWidth, unscaledHeight);
+        }
+    </fx:Script>
+    
+    <s:states>
+        <s:State name="normal" />
+        <s:State name="disabled" />
+    </s:states>
+    
+    <fx:Declarations>
+        <!--- 
+              Defines the appearance of the the List's drop indicator.
+              To customize the drop indicator appearance, create a custom ListSkin class.
+              The List's layout takes care to size and position the dropIndicator.
+              The size of the <code>dropIndicator</code> is typically set to the size of the gaps between the items.
+              The minimum and maximum settings are typically respected only in the direction
+              along the major axis (the gap axis).  For example a VerticalLayout ignores the 
+              <code>minWidth</code> and <code>maxWidth</code> settings, 
+              but respect <code>minHeight</code> and <code>maxHeight</code>. 
+        
+              @copy spark.components.List#dropIndicator
+        -->
+        <fx:Component id="dropIndicator">
+            <s:Group minWidth="3" minHeight="3" maxWidth="3" maxHeight="3">
+                <s:Rect left="0" right="0" top="0" bottom="0">
+                    <s:fill>
+                        <!--- Defines the color of the background. -->
+                        <s:SolidColor color="0xBBBBBB" />
+                    </s:fill>
+                    <s:stroke>
+                        <s:SolidColorStroke color="0x868686" weight="1"/>
+                    </s:stroke>
+                </s:Rect>
+            </s:Group>
+        </fx:Component>
+    </fx:Declarations>
+
+    <!-- border -->
+    <!--- @private -->
+    <s:Rect left="0" right="0" top="0" bottom="0" id="border">
+        <s:stroke>
+            <!--- @private -->
+            <s:SolidColorStroke id="borderStroke" weight="1"/>
+        </s:stroke>
+    </s:Rect>
+    
+    <!-- fill -->
+    <!--- Defines the background appearance of the list-based component. -->
+    <s:Rect id="background" left="1" right="1" top="1" bottom="1" >
+        <s:fill>
+        <!--- Defines the color of the background. The default color is 0xFFFFFF. -->
+            <s:SolidColor id="bgFill" color="0xFFFFFF" />
+        </s:fill>
+    </s:Rect>
+
+    <!--- The Scroller component to add scroll bars to the list. -->
+    <components:LocoDecoScroller left="0" top="0" right="0" bottom="0" id="scroller" minViewportInset="1" hasFocusableChildren="false" horizontalScrollPolicy="off">
+        <!--- @copy spark.components.SkinnableDataContainer#dataGroup -->
+        <s:DataGroup id="dataGroup" itemRenderer="spark.skins.spark.DefaultItemRenderer">
+            <s:layout>
+                <!--- The default layout is vertical and measures at least for 5 rows.  
+                When switching to a different layout, HorizontalLayout for example,
+                make sure to adjust the minWidth, minHeihgt sizes of the skin -->
+                <s:VerticalLayout horizontalAlign="contentJustify" requestedMinRowCount="6" gap="0" />
+            </s:layout>
+        </s:DataGroup>
+    </components:LocoDecoScroller>
+</s:SparkSkin>

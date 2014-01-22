@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TextInput xmlns:fx="http://ns.adobe.com/mxml/2009" 
+	xmlns:s="library://ns.adobe.com/flex/spark" 
+	xmlns:mx="library://ns.adobe.com/flex/mx"
+	editable="false"
+	doubleClickEnabled="true"
+	height="18"
+	paddingTop="0"
+	paddingBottom="0"
+	paddingLeft="0"
+	paddingRight="0"
+	verticalCenter="0"
+	kerning="true"
+	fontFamily="Arial"
+	doubleClick="if (enabled) editable =! editable;"
+	click="if (enabled &amp;&amp; event.shiftKey) editable =! editable;"
+	keyUp="checkForEndEditing(event)"
+	mouseWheel="mouseWheelHandler(event)"
+	useHandCursor="true" buttonMode="true"
+	contentBackgroundAlpha="0"
+	borderVisible="false"
+	focusAlpha="0"
+	fontGridFitType="subpixel"
+	fontAntiAliasType="advanced"
+	text="">
+	
+	<fx:Metadata> 
+		[Bindable] 
+	</fx:Metadata>
+	
+	<fx:Script>
+	<![CDATA[
+		import locodeco.LocoDecoGlobals;
+		
+		import mx.utils.StringUtil;
+		
+		public var maxViewableChars:int = int.MAX_VALUE;
+		public var mustBeNonEmpty:Boolean = true;
+		public var autoTrimText:Boolean = true;
+		public var isNumeric:Boolean = false;
+		public var mouseWheelEnabled:Boolean = true;
+		
+		private var _prefix:String = "";
+		private var _suffix:String = "";
+		private var _value:* = "";
+		private var _minVal:Number = Number.NEGATIVE_INFINITY;
+		private var _maxVal:Number = Number.POSITIVE_INFINITY;
+		
+		public function get value():* {
+			return _value;
+		}
+		
+		public function set value(v:*):void {
+			if (isNumeric) v = Math.min(Math.max(_minVal, Number(v)), _maxVal);
+			_value = v;
+			updateText();
+		}
+		
+		public function get suffix():* {
+			return _suffix;
+		}
+		
+		public function set suffix(u:*):void {
+			_suffix = (u ? u : '');
+			updateText();
+		}
+		
+		public function get prefix():* {
+			return _prefix;
+		}
+		
+		public function set prefix(u:*):void {
+			_prefix = (u ? u : '');
+			updateText();
+		}
+		
+		public function get minValue():Number {
+			return _minVal;
+		}
+		
+		public function set minValue(v:Number):void {
+			_minVal = v;
+			value = value;
+		}
+		
+		public function get maxValue():Number {
+			return _maxVal;
+		}
+		
+		public function set maxValue(v:Number):void {
+			_maxVal = v;
+			value = value;
+		}
+		
+		override public function set editable(newEditable:Boolean):void {
+			if (newEditable == editable) return;
+			
+			selectable = newEditable;
+			super.editable = newEditable;
+			if (newEditable) {
+				LocoDecoGlobals.instance.currentlyEditingALabel = true;
+
+				htmlText = null;
+				text = _value;
+				// removed in endEditing
+				addEventListener(FocusEvent.FOCUS_OUT, endEditing);
+				setSelection(length, 0);
+				setFocus();
+			}
+		}
+		
+		private function endEditing(event:Event=null):void {
+			if (!editable) return;
+			editable=false;
+			LocoDecoGlobals.instance.currentlyEditingALabel = false;
+			
+			removeEventListener(FocusEvent.FOCUS_OUT, endEditing);
+
+			if (autoTrimText)
+				text = StringUtil.trim(text);
+			if (mustBeNonEmpty && (text.length == 0))
+				revertChanges();
+			
+			// trigger databinding by using the setter
+			value = text;
+			
+			// this is redundant, but if the value hasn't changed, databinding
+			// will not trigger the setter, which will not update the text
+			// (text needs to be updated since we tack on pre/suffixes)
+			updateText();
+		}
+		
+		private function checkForEndEditing(event:KeyboardEvent):void {
+			if(editable) {
+				switch (event.keyCode) {
+					case Keyboard.ESCAPE:
+						// revert the changes and stop editing
+						revertChanges();
+					case Keyboard.ENTER:
+						event.stopImmediatePropagation();
+						endEditing();
+						break;
+				}
+			}
+		}
+		
+		private function revertChanges():void {
+			text = _value;
+		}
+		
+		private function updateText():void {
+			var tmp:String = '';
+			if (_value == 0 || _value) {
+				tmp = _value;
+			}
+			if (tmp.length > maxViewableChars) {
+				tmp = tmp.substr(0, maxViewableChars-3) + '...';
+			}
+			if (_prefix.length) {
+				tmp = "<font color='#528495'>" + _prefix + '</font>' + tmp;
+			}
+			if (_suffix.length) {
+				tmp += "<font color='#528495'>" + _suffix + '</font>';
+			}
+			htmlText = tmp;
+			setSelection(0, 0);
+		}
+
+		protected function mouseWheelHandler(event:MouseEvent):void {
+			if (enabled && isNumeric && mouseWheelEnabled) {
+				value = Number(value) + event.delta;
+			}
+		}
+	]]>
+	</fx:Script>
+</mx:TextInput>
